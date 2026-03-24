@@ -1,249 +1,127 @@
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+// Smooth Scrolling for Navigation Links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener("click", function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth"
+        });
+    });
+});
 
-/* Global */
-body {
-    font-family: 'Segoe UI', sans-serif;
-    line-height: 1.6;
-    background-color: #f4f7fa;
-    color: #1e293b;
-}
 
-section {
-    padding: 80px 10%;
-}
+// Scroll Reveal Animation using Intersection Observer
+const revealElements = document.querySelectorAll(".section, .hero");
 
-h1, h2 {
-    margin-bottom: 20px;
-}
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+        }
+    });
+}, {
+    threshold: 0.15
+});
 
-h2 {
-    font-size: 2rem;
-    color: #0f172a;
-    border-left: 5px solid #0ea5e9;
-    padding-left: 10px;
-}
+revealElements.forEach(el => {
+    observer.observe(el);
+});
 
-/* Navbar */
-header {
-    background: #ffffff;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    z-index: 1000;
-}
+// Counter Animation
+const counters = document.querySelectorAll('.counter');
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 10%;
-}
+const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const counter = entry.target;
+            const target = +counter.getAttribute('data-target');
+            let count = 0;
 
-.logo {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #0f172a;
-}
+            const updateCounter = () => {
+                const increment = target / 100;
+                if (count < target) {
+                    count += increment;
+                    counter.innerText = Math.ceil(count);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.innerText = target;
+                }
+            };
 
-.nav-links {
-    list-style: none;
-    display: flex;
-    gap: 25px;
-}
+            updateCounter();
+            counterObserver.unobserve(counter);
+        }
+    });
+}, { threshold: 0.5 });
 
-.nav-links a {
-    text-decoration: none;
-    color: #334155;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
+counters.forEach(counter => {
+    counterObserver.observe(counter);
+});
 
-.nav-links a:hover {
-    color: #0ea5e9;
-}
+// Skill Bar Animation
+const skillBars = document.querySelectorAll('.progress-bar');
 
-/* Hero Section */
-.hero {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0 10%;
-    background: linear-gradient(to right, #e0f2fe, #f4f7fa);
-    margin-top: 70px;
-}
+const skillObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const bar = entry.target;
+            bar.style.width = bar.getAttribute('data-width');
+            skillObserver.unobserve(bar);
+        }
+    });
+}, { threshold: 0.5 });
 
-.hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-}
+skillBars.forEach(bar => {
+    skillObserver.observe(bar);
+});
 
-.hero p {
-    font-size: 1.1rem;
-    max-width: 600px;
-    margin-bottom: 25px;
-}
+// Project Filtering
+const filterButtons = document.querySelectorAll(".filter-btn");
+const projectCards = document.querySelectorAll(".project-card");
 
-.hero-buttons {
-    display: flex;
-    gap: 15px;
-}
+filterButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelector(".filter-btn.active").classList.remove("active");
+        button.classList.add("active");
 
-.btn {
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    background-color: #0ea5e9;
-    color: white;
-    font-weight: 500;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+        const filterValue = button.getAttribute("data-filter");
 
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(14,165,233,0.3);
-}
+        projectCards.forEach(card => {
+            if (filterValue === "all" || card.getAttribute("data-category") === filterValue) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+});
 
-.btn.secondary {
-    background-color: #1e293b;
-}
+// Active Navbar Highlight on Scroll
+const sections = document.querySelectorAll("section");
+const navLinks = document.querySelectorAll(".nav-links a");
 
-/* Section Layout */
-.section {
-    background-color: #ffffff;
-    margin-bottom: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-}
+window.addEventListener("scroll", () => {
+    let current = "";
 
-/* Footer */
-footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #0f172a;
-    color: white;
-}
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        const sectionHeight = section.clientHeight;
 
-/* Scroll Reveal Base State */
-.section, .hero {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-}
+        if (pageYOffset >= sectionTop) {
+            current = section.getAttribute("id");
+        }
+    });
 
-/* When Visible */
-.show {
-    opacity: 1;
-    transform: translateY(0);
-}
+    navLinks.forEach(link => {
+        link.classList.remove("active");
+        if (link.getAttribute("href") === "#" + current) {
+            link.classList.add("active");
+        }
+    });
+});
 
-/* Stats Section */
-.stats {
-    display: flex;
-    justify-content: space-around;
-    background: #ffffff;
-    padding: 60px 10%;
-    text-align: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-}
+function copyEmail() {
+    const email = document.getElementById("email-text").innerText;
+    navigator.clipboard.writeText(email);
 
-.stat-box h3 {
-    font-size: 2.5rem;
-    color: #0ea5e9;
-    margin-bottom: 10px;
-}
-
-.stat-box p {
-    font-weight: 500;
-    color: #334155;
-}
-
-/* Skills Section */
-.skills-container {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.skill p {
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.progress {
-    width: 100%;
-    height: 8px;
-    background: #e2e8f0;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0;
-    background: #0ea5e9;
-    transition: width 1.5s ease;
-}
-
-/* Projects Layout */
-.projects-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-}
-
-.project-card {
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-}
-
-.project-card h3 {
-    margin-bottom: 10px;
-}
-
-.project-card p {
-    font-size: 0.95rem;
-    margin-bottom: 15px;
-    color: #475569;
-}
-
-/* Tech Stack Tags */
-.tech-stack {
-    margin-bottom: 15px;
-}
-
-.tech-stack span {
-    display: inline-block;
-    background: #e0f2fe;
-    color: #0369a1;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    margin: 5px 5px 0 0;
-}
-
-/* Small Buttons */
-.btn.small {
-    padding: 6px 14px;
-    font-size: 0.8rem;
-}
-
-.project-buttons {
-    display: flex;
-    gap: 10px;
+    alert("Email copied to clipboard!");
 }
